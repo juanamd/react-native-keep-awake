@@ -1,9 +1,9 @@
-/* @flow */
+// @flow
 
 import React, { Component } from 'react';
 import { NativeModules } from 'react-native';
 
-export default class KeepAwake extends Component {
+export default class KeepAwake extends Component<void, void> {
   static activate() {
     NativeModules.KCKeepAwake.activate();
   }
@@ -21,6 +21,6 @@ export default class KeepAwake extends Component {
   }
 
   render() {
-    return this.props.children || null;
+    return null;
   }
 }
