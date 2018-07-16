@@ -30,19 +30,12 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 			activity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if (android.os.Build.VERSION.SDK_INT >= 27) {
-						activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-						activity.setShowWhenLocked(true);
-						activity.setTurnScreenOn(true);
-						Log.i("KCKeepAwake", "activate(): Added KEEP_SCREEN_ON flag and api 27 methods");
-					} else {
-						activity.getWindow().addFlags(
-							WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-							WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-							WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-						);
-						Log.i("KCKeepAwake", "activate(): Added window flags");
-					}
+					activity.getWindow().addFlags(
+						WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+						WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+						WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+					);
+					Log.i("KCKeepAwake", "activate(): Added window flags");
 				}
 			});
 		} else {
@@ -58,19 +51,12 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 			activity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					if (android.os.Build.VERSION.SDK_INT >= 27) {
-						activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-						activity.setShowWhenLocked(false);
-						activity.setTurnScreenOn(false);
-						Log.i("KCKeepAwake", "deactivate(): Removed KEEP_SCREEN_ON flag and api 27 methods");
-					} else {
-						activity.getWindow().clearFlags(
-							WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-							WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
-							WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-						);
-						Log.i("KCKeepAwake", "deactivate(): Removed window flags");
-					}
+					activity.getWindow().clearFlags(
+						WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+						WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+						WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+					);
+					Log.i("KCKeepAwake", "deactivate(): Cleared window flags");
 				}
 			});
 		} else {
