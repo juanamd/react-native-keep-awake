@@ -90,7 +90,7 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 		if (acquire && ms > 0) {
 			try {
 				PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-				wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
+				wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 				wakeLock.acquire(ms);
 				Log.i(TAG, "usePowerManagerWakeup(): Acquired wakeLock");
 			} catch (Exception e) {
