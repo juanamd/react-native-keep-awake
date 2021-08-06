@@ -17,7 +17,6 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 
 public class KCKeepAwake extends ReactContextBaseJavaModule {
-
 	private static final String TAG = "KCKeepAwake";
 	private static WakeLock wakeLock;
 
@@ -31,16 +30,16 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 	}
 
 	@ReactMethod
-	public void activate(Promise promise) {
-		setActive(true, promise);
+	public void activate(final int wakelockMs, Promise promise) {
+		setActive(true, wakelockMs, promise);
 	}
 
 	@ReactMethod
 	public void deactivate(Promise promise) {
-		setActive(false, promise);
+		setActive(false, -1, promise);
 	}
 
-	private void setActive(final boolean activate, Promise promise) {
+	private void setActive(final boolean activate, final int wakelockMs, Promise promise) {
 		final Activity activity = getCurrentActivity();
 
 		if (activity != null) {
@@ -49,7 +48,7 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 				public void run() {
 					useWindowFlags(activity, activate);
 					useActivityScreenMethods(activity, activate);
-					usePowerManagerWakeup(activity, activate);
+					usePowerManagerWakeup(activity, activate, wakelockMs);
 				}
 			});
 			promise.resolve(null);
@@ -87,12 +86,12 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 		}
 	}
 
-	private static void usePowerManagerWakeup(final Activity activity, final boolean acquire) {
-		if (acquire == true) {
+	private static void usePowerManagerWakeup(final Activity activity, final boolean acquire, final int ms) {
+		if (acquire && ms > 0) {
 			try {
 				PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
 				wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, TAG);
-				wakeLock.acquire(5000);
+				wakeLock.acquire(ms);
 				Log.i(TAG, "usePowerManagerWakeup(): Acquired wakeLock");
 			} catch (Exception e) {
 				Log.e(TAG, "usePowerManagerWakeup(): Wakelock error", e);
