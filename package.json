@@ -3,6 +3,7 @@
   "version": "2.2.0",
   "description": "Keep the screen from going to sleep. iOS and Android.",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/juanamd/react-native-keep-awake"
