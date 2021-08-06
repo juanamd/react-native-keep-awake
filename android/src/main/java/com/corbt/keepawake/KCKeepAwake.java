@@ -11,6 +11,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.content.Context;
 
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -30,42 +31,33 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 	}
 
 	@ReactMethod
-	public void activate() {
-		final Activity activity = getCurrentActivity();
-
-		if (activity != null) {
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					useWindowFlags(activity, true);
-					useActivityScreenMethods(activity, true);
-					usePowerManagerWakeup(activity, true);
-				}
-			});
-		} else {
-			Log.e(TAG, "activate(): No current activity found");
-		}
+	public void activate(Promise promise) {
+		setActive(true, promise);
 	}
 
 	@ReactMethod
-	public void deactivate() {
+	public void deactivate(Promise promise) {
+		setActive(false, promise);
+	}
+
+	private void setActive(final boolean activate, Promise promise) {
 		final Activity activity = getCurrentActivity();
 
 		if (activity != null) {
 			activity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					useWindowFlags(activity, false);
-					useActivityScreenMethods(activity, false);
-					usePowerManagerWakeup(activity, false);
+					useWindowFlags(activity, activate);
+					useActivityScreenMethods(activity, activate);
+					usePowerManagerWakeup(activity, activate);
 				}
 			});
-		} else {
-			Log.e(TAG, "deactivate(): No current activity found");
+			promise.resolve(null);
 		}
+		promise.reject(new Exception("No current activity found"));
 	}
 
-	private static void useWindowFlags(final Activity activity, boolean activate) {
+	private static void useWindowFlags(final Activity activity, final boolean activate) {
 		if (activate == true) {
 			activity.getWindow().addFlags(
 				WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
@@ -83,19 +75,19 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 		}
 	}
 
-	private static void useActivityScreenMethods(final Activity activity, boolean activate) {
+	private static void useActivityScreenMethods(final Activity activity, final boolean activate) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
 			try {
 				activity.setTurnScreenOn(activate);
 				activity.setShowWhenLocked(activate);
 				Log.i(TAG, "useActivityScreenMethods(): Set screen methods to " + activate);
 			} catch (Exception e) {
-				Log.e(TAG, "Enable setTurnScreenOn and setShowWhenLocked is not present on device!");
+				Log.e(TAG, "Error using activity methods. Activate: " + activate, e);
 			}
 		}
 	}
 
-	private static void usePowerManagerWakeup(final Activity activity, boolean acquire) {
+	private static void usePowerManagerWakeup(final Activity activity, final boolean acquire) {
 		if (acquire == true) {
 			try {
 				PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
@@ -103,7 +95,7 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 				wakeLock.acquire(5000);
 				Log.i(TAG, "usePowerManagerWakeup(): Acquired wakeLock");
 			} catch (Exception e) {
-				Log.e(TAG, "usePowerManagerWakeup(): Wakelock error: " + e.toString());
+				Log.e(TAG, "usePowerManagerWakeup(): Wakelock error", e);
 			}
 		} else if (wakeLock != null) {
 			try {
@@ -112,7 +104,7 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 					Log.i(TAG, "usePowerManagerWakeup(): Released wakeLock");
 				}
 			} catch (Exception e) {
-				Log.e(TAG, "usePowerManagerWakeup(): Wakelock release error: " + e.toString());
+				Log.e(TAG, "usePowerManagerWakeup(): Wakelock release error", e);
 			}
 		}
 	}
