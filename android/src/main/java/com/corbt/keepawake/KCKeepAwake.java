@@ -52,8 +52,9 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 				}
 			});
 			promise.resolve(null);
+		} else {
+			promise.reject(new Exception("No current activity found"));
 		}
-		promise.reject(new Exception("No current activity found"));
 	}
 
 	private static void useWindowFlags(final Activity activity, final boolean activate) {
