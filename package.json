@@ -5,12 +5,11 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/corbt/react-native-keep-awake.git"
+    "url": "https://github.com/juanamd/react-native-keep-awake"
   },
   "bugs": {
-    "url": "https://github.com/corbt/react-native-keep-awake/issues"
+    "url": "https://github.com/juanamd/react-native-keep-awake/issues"
   },
-  "homepage": "https://github.com/corbt/react-native-keep-awake#readme",
   "keywords": [
     "react-native",
     "ios",
@@ -20,6 +19,9 @@
     "lock",
     "sleep"
   ],
-  "author": "Kyle Corbitt",
-  "license": "MIT"
+  "author": "Kyle Corbitt, Juan Story",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.47.0"
+  }
 }
