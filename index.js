@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { NativeModules } from 'react-native';
+
+import NativeKCKeepAwake from './specs/NativeKCKeepAwake';
 
 export default class KeepAwake extends Component {
   static activate(wakelockMs = -1) {
-    return NativeModules.KCKeepAwake.activate(wakelockMs);
+    return NativeKCKeepAwake.activate(wakelockMs);
   }
 
   static deactivate() {
-    return NativeModules.KCKeepAwake.deactivate();
+    return NativeKCKeepAwake.deactivate();
   }
 
   componentDidMount() {

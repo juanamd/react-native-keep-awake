@@ -1,95 +1,97 @@
-This React Native package allows you to prevent the screen from going to sleep while your app is active. It's useful for things like navigation or video playback, where the user expects the app to remain visible over long periods without touch interaction.
+# react-native-keep-awake
 
-## Compatible Versions
+Keep the Android screen from going to sleep while a React Native screen is active.
 
-**Note:** Due to a breaking change in React Native [0.40](https://github.com/facebook/react-native/releases/tag/v0.40.0), versions 2.0+ of this library is only compatible with RN >=0.40. For older versions of React Native, you'll need to install version 1.07.
+This package is an Android-only React Native Turbo Native Module and requires the New Architecture. It preserves the original `KeepAwake` component API and the `activate()` / `deactivate()` static methods.
+
+## Requirements
+
+- React Native 0.81 or newer
+- React Native New Architecture enabled
+- Android
+
+Legacy architecture and iOS are not supported by this version.
 
 ## Installation
 
-As the first step, install this module:
-
-```
-npm install --save react-native-keep-awake
+```sh
+npm install https://github.com/juanamd/react-native-keep-awake.git
 ```
 
-### RNPM
+or
 
-The plugin can be installed using [react-native link](https://facebook.github.io/react-native/docs/linking-libraries-ios.html) on both iOS and Android. Once installed with npm, just run:
-
-```
-react-native link
+```sh
+yarn add https://github.com/juanamd/react-native-keep-awake.git
 ```
 
-### Manual install
+React Native autolinking handles the Android package and Codegen integration. No manual changes to `MainApplication`, `settings.gradle`, or `app/build.gradle` are required for a standard React Native app.
 
-#### iOS
-
-1. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-2. Go to `node_modules` ➜ `react-native-keep-awake` and add `KCKeepAwake.xcodeproj`
-3. In XCode, in the project navigator, select your project. Add `libKCKeepAwake.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-4. Click `KCKeepAwake.xcodeproj` in the project navigator and go the `Build Settings` tab. Make sure 'All' is toggled on (instead of 'Basic'). In the `Search Paths` section, look for `Header Search Paths` and make sure it contains both `$(SRCROOT)/../../react-native/React` and `$(SRCROOT)/../../../React` - mark both as `recursive`.
-
-
-#### Android
-
-1. Open up `android/app/src/main/java/[...]/MainApplication.java (React Native 0.29+)
-  - Add `import com.corbt.keepawake.KCKeepAwakePackage;` to the imports at the top of the file
-  - Add `new KCKeepAwakePackage()` to the list returned by the `getPackages()` method
-
-3. Append the following lines to `android/settings.gradle`:
-
-```groovy
-include ':react-native-keep-awake'
-	project(':react-native-keep-awake').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-keep-awake/android')
-```
-
-4. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
-
-```groovy
-compile project(':react-native-keep-awake')
-```
+After installing or changing the package's native code, rebuild the Android application.
 
 ## Usage
 
-There are two ways to use this package: by rendering it as a component, or by explicitly calling
-the `KeepAwake.activate()` and `KeepAwake.deactivate()` static methods. Both are demonstrated below.
+### Component
 
-```jsx
+Mount `KeepAwake` in a component tree to keep the current Activity awake for as long as the component is mounted.
 
-import React, { Component } from 'react';
-import { View, Text } from 'react-native';
-
+```tsx
+import React from 'react';
+import { Text, View } from 'react-native';
 import KeepAwake from 'react-native-keep-awake';
 
-// Method 1
-const MyComponent extends Component {
-  render() {
-    if (this.props.screenShouldBeAwake) {
-      return (
-        <View>
-          <Text>Screen will be kept awake</Text>
-          <KeepAwake />
-        </View>
-      )
-    } else {
-      return (
-        <View>
-          <Text>Screen can sleep</Text>
-        </View>
-      );
-    }
-  }
+export default function MyScreen() {
+  return (
+    <View>
+      <KeepAwake />
+      <Text>This screen will stay awake.</Text>
+    </View>
+  );
 }
-
-// Method 2
-function changeKeepAwake(shouldBeAwake) {
-  if (shouldBeAwake) {
-    KeepAwake.activate();
-  } else {
-    KeepAwake.deactivate();
-  }
-}
-
 ```
 
-In method 1, the screen will be locked awake when the `<KeepAwake />` component is mounted, and the lock will be disabled when the component is unmounted. Method 2 gives you more explicit control of when the lock is active or not.
+When the component unmounts, the keep-awake state is disabled.
+
+### Manual control
+
+```tsx
+import KeepAwake from 'react-native-keep-awake';
+
+await KeepAwake.activate();
+
+await KeepAwake.deactivate();
+```
+
+`activate()` accepts an optional timeout in milliseconds for the Android `WakeLock` used by the module. The default is `-1`, which does not acquire a timed partial wake lock and preserves the normal screen-on behavior of the package.
+
+```tsx
+await KeepAwake.activate(30_000);
+```
+
+Both methods return a `Promise<void>`. The promise is rejected when there is no current Android Activity.
+
+## TypeScript
+
+Type definitions are included with the package.
+
+## How it works
+
+The JavaScript layer accesses the native module through `TurboModuleRegistry`. Codegen generates `NativeKCKeepAwakeSpec`, which the Android implementation extends. The package registers the implementation as a TurboModule using `BaseReactPackage`.
+
+The Android implementation keeps the existing behavior of using window flags and, when a positive timeout is supplied, an Android partial `WakeLock`.
+
+## Development
+
+The native code is generated as part of the consuming React Native application's Codegen process.
+
+To manually run Android Codegen from a React Native application using this package:
+
+```sh
+cd android
+./gradlew generateCodegenArtifactsFromSchema
+```
+
+Then rebuild the application.
+
+## License
+
+MIT

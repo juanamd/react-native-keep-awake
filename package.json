@@ -1,9 +1,17 @@
 {
   "name": "react-native-keep-awake",
-  "version": "2.3.0",
-  "description": "Keep the screen from going to sleep. iOS and Android.",
+  "version": "3.0.0",
+  "description": "Keep the screen from going to sleep. Android only",
   "main": "index.js",
+  "react-native": "index.js",
   "types": "types/index.d.ts",
+  "files": [
+    "index.js",
+    "types",
+    "specs",
+    "android",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/juanamd/react-native-keep-awake"
@@ -13,7 +21,6 @@
   },
   "keywords": [
     "react-native",
-    "ios",
     "android",
     "awake",
     "screen",
@@ -23,6 +30,15 @@
   "author": "Kyle Corbitt, Juan Story",
   "license": "MIT",
   "peerDependencies": {
-    "react-native": ">=0.47.0"
+    "react": "*",
+    "react-native": ">=0.81.0"
+  },
+  "codegenConfig": {
+    "name": "NativeKCKeepAwakeSpec",
+    "type": "modules",
+    "jsSrcsDir": "specs",
+    "android": {
+      "javaPackageName": "com.corbt.keepawake"
+    }
   }
 }

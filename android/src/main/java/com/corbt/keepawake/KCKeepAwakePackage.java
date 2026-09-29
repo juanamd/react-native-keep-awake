@@ -1,33 +1,45 @@
-// Adapted from
-// https://github.com/gijoehosaphat/react-native-keep-screen-on
-
 package com.corbt.keepawake;
 
-import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.JavaScriptModule;
+import androidx.annotation.Nullable;
+
+import com.facebook.react.BaseReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.uimanager.ViewManager;
+import com.facebook.react.module.model.ReactModuleInfo;
+import com.facebook.react.module.model.ReactModuleInfoProvider;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class KCKeepAwakePackage implements ReactPackage {
+public class KCKeepAwakePackage extends BaseReactPackage {
+	@Nullable
+	@Override
+	public NativeModule getModule(String name, ReactApplicationContext reactContext) {
+		if (name.equals(KCKeepAwake.NAME)) {
+			return new KCKeepAwake(reactContext);
+		}
 
-    @Override
-    public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new KCKeepAwake(reactContext));
-    }
+		return null;
+	}
 
-    // Deprecated RN 0.47
-    public List<Class<? extends JavaScriptModule>> createJSModules() {
-        return Collections.emptyList();
-    }
+	@Override
+	public ReactModuleInfoProvider getReactModuleInfoProvider() {
+		return new ReactModuleInfoProvider() {
+			@Override
+			public Map<String, ReactModuleInfo> getReactModuleInfos() {
+				Map<String, ReactModuleInfo> map = new HashMap<>();
 
-    @Override
-    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Collections.emptyList();
-    }
+				map.put(KCKeepAwake.NAME, new ReactModuleInfo(
+					KCKeepAwake.NAME,
+					KCKeepAwake.NAME,
+					false,
+					false,
+					false,
+					true
+				));
 
+				return map;
+			}
+		};
+	}
 }

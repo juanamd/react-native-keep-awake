@@ -4,20 +4,19 @@
 package com.corbt.keepawake;
 
 import android.app.Activity;
-import android.util.Log;
-import android.view.WindowManager;
+import android.content.Context;
 import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.content.Context;
+import android.util.Log;
+import android.view.WindowManager;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
 
-public class KCKeepAwake extends ReactContextBaseJavaModule {
-	private static final String TAG = "KCKeepAwake";
+public class KCKeepAwake extends NativeKCKeepAwakeSpec {
+	public static final String NAME = "KCKeepAwake";
+	private static final String TAG = NAME;
 	private static WakeLock wakeLock;
 
 	public KCKeepAwake(ReactApplicationContext reactContext) {
@@ -29,29 +28,33 @@ public class KCKeepAwake extends ReactContextBaseJavaModule {
 		return TAG;
 	}
 
-	@ReactMethod
-	public void activate(final int wakelockMs, Promise promise) {
-		setActive(true, wakelockMs, promise);
+	@Override
+	public void activate(double wakelockMs, Promise promise) {
+		setActive(true, (int) wakelockMs, promise);
 	}
 
-	@ReactMethod
+	@Override
 	public void deactivate(Promise promise) {
 		setActive(false, -1, promise);
 	}
 
-	private void setActive(final boolean activate, final int wakelockMs, Promise promise) {
+	private void setActive(final boolean activate, final int wakelockMs, final Promise promise) {
 		final Activity activity = getCurrentActivity();
-
 		if (activity != null) {
 			activity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					useWindowFlags(activity, activate);
-					useActivityScreenMethods(activity, activate);
-					usePowerManagerWakeup(activity, activate, wakelockMs);
+					try {
+						useWindowFlags(activity, activate);
+						useActivityScreenMethods(activity, activate);
+						usePowerManagerWakeup(activity, activate, wakelockMs);
+						promise.resolve(null);
+					} catch (Exception e) {
+						Log.e(TAG, "Unable to update keep-awake state", e);
+						promise.reject(e);
+					}
 				}
 			});
-			promise.resolve(null);
 		} else {
 			promise.reject(new Exception("No current activity found"));
 		}
